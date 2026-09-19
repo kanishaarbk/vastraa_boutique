@@ -6,15 +6,19 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt .
+# Docker build context is the ecom project root
+COPY backend/requirements.txt ./requirements.txt
 
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
-COPY . .
+# Copy only the Django backend into the container
+COPY backend/ .
 
+# Collect Django admin/static files during image build
 RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
+# Render provides PORT automatically; 8000 is used locally
 CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2}"]
