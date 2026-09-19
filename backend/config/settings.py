@@ -18,8 +18,16 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-local-secret-key-chang
 
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
-allowed_hosts_env = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1','vastraa-boutique.onrender.com')
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+allowed_hosts_env = os.getenv(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,vastraa-boutique.onrender.com'
+)
+
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in allowed_hosts_env.split(',')
+    if host.strip()
+]
 
 # Application definition
 INSTALLED_APPS = [
