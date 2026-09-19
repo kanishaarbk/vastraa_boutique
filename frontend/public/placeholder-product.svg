@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none">
+  <rect width="600" height="600" fill="#F9FAFB"/>
+  <circle cx="300" cy="270" r="100" fill="#F3F4F6"/>
+  <path d="M260 250C260 238.954 268.954 230 280 230H320C331.046 230 340 238.954 340 250V310C340 321.046 331.046 330 320 330H280C268.954 330 260 321.046 260 310V250Z" stroke="#722F37" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M275 230V215C275 201.193 286.193 190 300 190C313.807 190 325 201.193 325 215V230" stroke="#722F37" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="300" cy="280" r="12" fill="#722F37"/>
+  <text x="300" y="410" text-anchor="middle" fill="#374151" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="600" letter-spacing="0.5">Artisanal Heritage Goods</text>
+  <text x="300" y="440" text-anchor="middle" fill="#9CA3AF" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14">Crafted with care</text>
+</svg>

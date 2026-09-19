@@ -1,0 +1,396 @@
+:root {
+  /* =========================================
+     BOUTIQUE BRAND THEME
+     Wine • Rose • Cream • Muted Gold
+     ========================================= */
+
+  --color-primary: #7A2946;
+  --color-primary-dark: #54152D;
+  --color-primary-light: #9B4B67;
+  --color-primary-subtle: #FBF2F5;
+  --color-primary-border: #EBCFD9;
+
+  --color-accent: #B8894A;
+  --color-accent-light: #FAF4E9;
+
+  --color-bg: #FFFDFC;
+  --color-bg-subtle: #FCF7F5;
+  --color-bg-muted: #F5ECEE;
+
+  --color-text-main: #2B2025;
+  --color-text-muted: #665960;
+  --color-text-subtle: #8A7B82;
+  --color-text-light: #B2A5AA;
+
+  --color-border: #E9DDE0;
+  --color-border-hover: #D8C5CB;
+
+  --color-success: #16805D;
+  --color-success-bg: #ECF8F2;
+
+  --color-danger: #C0394B;
+  --color-danger-bg: #FDF0F2;
+
+  --color-warning: #B7791F;
+  --color-warning-bg: #FFF8E8;
+
+  /* Fonts */
+  --font-sans:
+    'Plus Jakarta Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+
+  --font-display:
+    Georgia,
+    'Times New Roman',
+    serif;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs:
+    0 1px 2px rgba(84, 21, 45, 0.04);
+
+  --shadow-sm:
+    0 2px 6px rgba(84, 21, 45, 0.06);
+
+  --shadow-md:
+    0 6px 16px rgba(84, 21, 45, 0.08);
+
+  --shadow-lg:
+    0 14px 35px rgba(84, 21, 45, 0.10);
+
+  --shadow-hover:
+    0 16px 35px rgba(122, 41, 70, 0.15);
+
+  --transition:
+    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --max-width: 1240px;
+}
+
+
+/* =========================================
+   GLOBAL RESET
+   ========================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  line-height: 1.6;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* =========================================
+   TYPOGRAPHY
+   ========================================= */
+
+h1,
+h2,
+h3 {
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+}
+
+p {
+  color: var(--color-text-muted);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+/* =========================================
+   SELECTION
+   ========================================= */
+
+::selection {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+
+/* =========================================
+   LAYOUT
+   ========================================= */
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.5rem;
+
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  padding: 0.75rem 1.4rem;
+
+  border-radius: var(--radius-md);
+
+  transition: var(--transition);
+
+  text-align: center;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+
+  box-shadow:
+    0 2px 5px rgba(122, 41, 70, 0.12);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+
+  box-shadow:
+    0 6px 15px rgba(122, 41, 70, 0.22);
+
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--color-text-main);
+
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+
+  background-color: var(--color-primary-subtle);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-primary);
+
+  border: 1.5px solid var(--color-primary);
+}
+
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-sm {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-lg {
+  padding: 0.95rem 1.8rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius-lg);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================
+   BADGES
+   ========================================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  padding: 0.28rem 0.65rem;
+
+  border-radius: var(--radius-full);
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  letter-spacing: 0.02em;
+}
+
+.badge-primary {
+  background-color: var(--color-primary-subtle);
+  color: var(--color-primary);
+
+  border: 1px solid var(--color-primary-border);
+}
+
+.badge-success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge-danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge-warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+
+/* =========================================
+   FORM ELEMENTS
+   ========================================= */
+
+input,
+textarea,
+select {
+  color: var(--color-text-main);
+  background-color: #ffffff;
+
+  border: 1px solid var(--color-border);
+
+  border-radius: var(--radius-md);
+
+  outline: none;
+
+  transition: var(--transition);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary);
+
+  box-shadow:
+    0 0 0 3px var(--color-primary-subtle);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-light);
+}
+
+
+/* =========================================
+   SCROLLBAR
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D5C2C9;
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-light);
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 767px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .btn-lg {
+    padding: 0.85rem 1.2rem;
+  }
+}
