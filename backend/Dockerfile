@@ -9,7 +9,13 @@ WORKDIR /app
 # Docker build context is the ecom project root
 COPY backend/requirements.txt ./requirements.txt
 
-RUN pip install --upgrade pip \
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        build-essential \
+        default-libmysqlclient-dev \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --upgrade pip \
     && pip install -r requirements.txt
 
 # Copy only the Django backend into the container

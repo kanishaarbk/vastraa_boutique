@@ -6,6 +6,5 @@ razorpay>=1.4.1
 Pillow>=10.2.0
 
 gunicorn
-psycopg2-binary
-dj-database-url
+mysqlclient>=2.2.0
 whitenoise[brotli]
