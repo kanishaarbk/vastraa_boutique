@@ -39,8 +39,8 @@ A simple, modern, and production-ready e-commerce web application built for loca
   - Razorpay Python SDK
   - Pillow (Image handling)
 - **Database**:
-  - SQLite (configured by default for development)
-  - Easily switched to PostgreSQL or MySQL for production via environment variables.
+  - MySQL (configured through environment variables)
+  - SQLite retained only for a one-time legacy-data export during migration.
 
 ---
 
@@ -209,7 +209,12 @@ SECRET_KEY=django-insecure-your-secret-key-here
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-DATABASE_URL=sqlite:///db.sqlite3
+DB_ENGINE=mysql
+MYSQL_DATABASE=vastraa_boutique
+MYSQL_USER=root
+MYSQL_PASSWORD=your-mysql-password
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
 
 # Razorpay Test Mode Credentials
 RAZORPAY_KEY_ID=rzp_test_YourTestKeyIdHere
@@ -293,5 +298,6 @@ For asynchronous payment reconciliation (e.g. if the customer accidentally close
      ```bash
      gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
      ```
-   - Connect PostgreSQL database via `DATABASE_URL` (e.g. `psycopg2-binary`).
+   - Configure `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, and `MYSQL_PORT`.
+   - For Render, deploy MySQL as a private service with a persistent disk mounted at `/var/lib/mysql`.
    - Store uploaded media files on AWS S3 or Supabase Storage via `django-storages`.

@@ -22,6 +22,9 @@ dist-ssr/
 media/
 !media/.gitkeep
 
+# One-time local database-migration exports
+backend/backups/
+
 # IDE / OS
 .DS_Store
 .vscode/

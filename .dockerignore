@@ -1,0 +1,60 @@
+.git
+.env
+*.env
+node_modules
+frontend/dist
+
+backend/.env
+backend/venv
+backend/__pycache__
+backend/**/*.pyc
+backend/db.sqlite3
+backend/media
+backend/backups
+backend/staticfiles
+
+# Ignore Python cache files
+*.py[cod]
+*$py.class
+
+# Ignore Python virtual environments
+venv/
+venv/
+.venv/
+
+# Ignore Django migrations (except __init__.py)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Ignore media files (user uploads)
+media/
+
+# Ignore static files built by collectstatic
+staticfiles/
+
+# Ignore IDE files
+.idea/
+.vscode/
+
+# Ignore deployment-related files
+.render.yaml
+render.yaml
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore OS files
+.DS_Store
+
+# Ignore build artifacts
+dist/
+build/
+
+# Ignore development tools
+.pytest_cache/
+.ruff_cache/
+
+# Ignore frontend build output if present
+frontend/dist/
+frontend/build/
