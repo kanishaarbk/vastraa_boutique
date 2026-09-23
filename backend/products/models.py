@@ -56,12 +56,16 @@ class Product(models.Model):
 
     @property
     def effective_image_url(self):
+        if self.image_url:
+            return self.image_url
+
         if self.image:
             try:
                 return self.image.url
             except Exception:
                 pass
-        return self.image_url or '/placeholder-product.svg'
+
+        return '/placeholder-product.svg'
 
     def __str__(self):
         return f"{self.name} (₹{self.price})"
