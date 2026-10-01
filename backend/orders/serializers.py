@@ -7,27 +7,37 @@ from products.models import Product
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_image = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderItem
         fields = [
             'id',
             'product',
             'product_name',
+            'product_image',
             'quantity',
             'price',
             'subtotal'
         ]
-        read_only_fields = ['price', 'subtotal', 'product_name']
+        read_only_fields = ['price', 'subtotal', 'product_name', 'product_image']
+
+    def get_product_image(self, obj):
+        if obj.product:
+            return obj.product.effective_image_url
+        return '/placeholder-product.svg'
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    user_id = serializers.ReadOnlyField(source='user.id', default=None)
 
     class Meta:
         model = Order
         fields = [
             'id',
             'order_number',
+            'user_id',
             'customer_name',
             'email',
             'phone',
@@ -130,12 +140,16 @@ class OrderCreateSerializer(serializers.Serializer):
         total_amount = validated_data.pop('calculated_total_amount')
         payment_method = validated_data.get('payment_method')
 
+        request = self.context.get('request')
+        user = request.user if (request and hasattr(request, 'user') and request.user.is_authenticated) else None
+
         with transaction.atomic():
             # For COD, orders are placed in CONFIRMED status and stock is deducted immediately.
             # For RAZORPAY, orders are placed in PENDING payment status, and stock is deducted upon verification.
             is_cod = (payment_method == 'COD')
 
             order = Order.objects.create(
+                user=user,
                 customer_name=validated_data['customer_name'],
                 email=validated_data['email'],
                 phone=validated_data['phone'],

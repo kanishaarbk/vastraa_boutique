@@ -1,6 +1,17 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
 from products.models import Product
+
+
+class CustomerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    phone = models.CharField(max_length=20, blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.email or self.user.username}"
 
 
 class Order(models.Model):
@@ -17,12 +28,24 @@ class Order(models.Model):
     ]
 
     ORDER_STATUS_CHOICES = [
-        ('CONFIRMED', 'Confirmed'),
+        ('CONFIRMED', 'Order Placed'),
+        ('PAYMENT_CONFIRMED', 'Payment Confirmed'),
         ('PROCESSING', 'Processing'),
+        ('PACKED', 'Packed'),
         ('SHIPPED', 'Shipped'),
+        ('OUT_FOR_DELIVERY', 'Out for Delivery'),
         ('DELIVERED', 'Delivered'),
         ('CANCELLED', 'Cancelled'),
     ]
+
+    # Optional association with registered Customer
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
 
     # Unique human-friendly order identifier (e.g. ORD-2026-ABCD12)
     order_number = models.CharField(max_length=64, unique=True, editable=False)
@@ -84,3 +107,19 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity}x {self.product_name or 'Item'} @ ₹{self.price}"
+
+
+class PhonePasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reset_otps')
+    phone = models.CharField(max_length=20)
+    otp_code = models.CharField(max_length=6)
+    reset_token = models.CharField(max_length=64, blank=True, null=True, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"OTP for {self.phone} - User: {self.user.username}"
+

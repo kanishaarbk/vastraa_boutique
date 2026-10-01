@@ -29,7 +29,7 @@ class OrderListCreateView(views.APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = OrderCreateSerializer(data=request.data)
+        serializer = OrderCreateSerializer(data=request.data, context={'request': request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -75,18 +75,42 @@ class OrderListCreateView(views.APIView):
         return Response(OrderDetailSerializer(order).data, status=status.HTTP_201_CREATED)
 
 
+class MyOrdersView(views.APIView):
+    """
+    GET /api/orders/my-orders/
+    Retrieve list of orders placed by the currently logged-in customer.
+    Enforces user ownership strictly on the backend via request.user.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
+        serializer = OrderDetailSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class OrderDetailView(views.APIView):
     """
     GET: Retrieve order details by ID or order_number.
+         Strictly enforces ownership so customer can ONLY view their own orders.
     PATCH: Staff updates order status or payment status.
     """
     def get_object(self, lookup):
         if str(lookup).isdigit():
-            return get_object_or_404(Order.objects.prefetch_related('items'), id=lookup)
-        return get_object_or_404(Order.objects.prefetch_related('items'), order_number=lookup)
+            return get_object_or_404(Order.objects.prefetch_related('items__product'), id=lookup)
+        return get_object_or_404(Order.objects.prefetch_related('items__product'), order_number=lookup)
 
     def get(self, request, lookup):
         order = self.get_object(lookup)
+
+        # Security Ownership Check:
+        # If order is owned by a customer, only that customer (or staff) may view it.
+        if order.user_id is not None:
+            if not request.user or not request.user.is_authenticated:
+                return Response({'detail': 'Authentication required to view this order.'}, status=status.HTTP_403_FORBIDDEN)
+            if request.user.id != order.user_id and not request.user.is_staff:
+                return Response({'detail': 'You do not have permission to view this order.'}, status=status.HTTP_403_FORBIDDEN)
+
         return Response(OrderDetailSerializer(order).data)
 
     def patch(self, request, lookup):
