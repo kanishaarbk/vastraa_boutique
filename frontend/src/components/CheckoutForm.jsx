@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   User,
   Phone,
@@ -8,21 +8,35 @@ import {
   Banknote,
   ShieldCheck,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function CheckoutForm({
   onSubmit,
   isSubmitting,
 }) {
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
-    customer_name: '',
-    phone: '',
-    email: '',
+    customer_name: user?.full_name || '',
+    phone: user?.phone || '',
+    email: user?.email || '',
     address: '',
     city: '',
     state: '',
     pincode: '',
     payment_method: 'COD',
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        customer_name: prev.customer_name || user.full_name || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+      }));
+    }
+  }, [user]);
 
   const [errors, setErrors] = useState({});
 

@@ -7,17 +7,24 @@ const BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   'http://localhost:8000';
 
+const TOKEN_KEY = 'vastraa_boutique_token';
+
 /**
  * Common API request handler
  */
 async function request(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
 
+  const token = localStorage.getItem(TOKEN_KEY);
+
+  const authHeader = token ? { Authorization: `Token ${token}` } : {};
+
   const config = {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
+      ...authHeader,
       ...(options.headers || {}),
     },
   };
@@ -63,9 +70,6 @@ async function request(endpoint, options = {}) {
 
     return data;
   } catch (error) {
-    /*
-     * Network / server connection error
-     */
     if (
       error instanceof TypeError ||
       error?.message
@@ -87,75 +91,64 @@ async function request(endpoint, options = {}) {
 export const api = {
   /**
    * ------------------------------------------------
+   * AUTHENTICATION
+   * ------------------------------------------------
+   */
+  async register(payload) {
+    return request('/api/auth/register/', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async login(payload) {
+    return request('/api/auth/login/', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async logout() {
+    return request('/api/auth/logout/', {
+      method: 'POST',
+    });
+  },
+
+  async getMe() {
+    return request('/api/auth/me/');
+  },
+
+  async updateProfile(payload) {
+    return request('/api/auth/me/', {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * ------------------------------------------------
    * PRODUCTS
    * ------------------------------------------------
    */
-
-  /**
-   * Fetch products.
-   *
-   * Supported filters:
-   * - search
-   * - category
-   * - featured
-   * - ordering
-   */
   async getProducts(params = {}) {
-    const query =
-      new URLSearchParams();
+    const query = new URLSearchParams();
 
-    if (params.search) {
-      query.append(
-        'search',
-        params.search
-      );
-    }
+    if (params.search) query.append('search', params.search);
+    if (params.category) query.append('category', params.category);
+    if (params.featured) query.append('featured', 'true');
+    if (params.ordering) query.append('ordering', params.ordering);
 
-    if (params.category) {
-      query.append(
-        'category',
-        params.category
-      );
-    }
-
-    if (params.featured) {
-      query.append(
-        'featured',
-        'true'
-      );
-    }
-
-    if (params.ordering) {
-      query.append(
-        'ordering',
-        params.ordering
-      );
-    }
-
-    const queryString =
-      query.toString();
-
-    const endpoint =
-      queryString
-        ? `/api/products/?${queryString}`
-        : '/api/products/';
+    const queryString = query.toString();
+    const endpoint = queryString ? `/api/products/?${queryString}` : '/api/products/';
 
     return request(endpoint);
   },
 
-  /**
-   * Fetch one product by ID.
-   */
   async getProduct(id) {
     if (!id) {
-      throw new Error(
-        'Product information is missing.'
-      );
+      throw new Error('Product information is missing.');
     }
-
-    return request(
-      `/api/products/${id}/`
-    );
+    return request(`/api/products/${id}/`);
   },
 
   /**
@@ -163,14 +156,8 @@ export const api = {
    * CATEGORIES
    * ------------------------------------------------
    */
-
-  /**
-   * Fetch all product categories.
-   */
   async getCategories() {
-    return request(
-      '/api/categories/'
-    );
+    return request('/api/categories/');
   },
 
   /**
@@ -178,46 +165,25 @@ export const api = {
    * ORDERS
    * ------------------------------------------------
    */
-
-  /**
-   * Create an order.
-   *
-   * Payment methods:
-   * - COD
-   * - RAZORPAY
-   */
   async createOrder(orderPayload) {
     if (!orderPayload) {
-      throw new Error(
-        'Order information is missing.'
-      );
+      throw new Error('Order information is missing.');
     }
-
-    return request(
-      '/api/orders/',
-      {
-        method: 'POST',
-        body: JSON.stringify(
-          orderPayload
-        ),
-      }
-    );
+    return request('/api/orders/', {
+      method: 'POST',
+      body: JSON.stringify(orderPayload),
+    });
   },
 
-  /**
-   * Get order details using
-   * order ID or order number.
-   */
+  async getMyOrders() {
+    return request('/api/orders/my-orders/');
+  },
+
   async getOrder(lookup) {
     if (!lookup) {
-      throw new Error(
-        'Order number is required.'
-      );
+      throw new Error('Order number is required.');
     }
-
-    return request(
-      `/api/orders/${lookup}/`
-    );
+    return request(`/api/orders/${lookup}/`);
   },
 
   /**
@@ -225,33 +191,13 @@ export const api = {
    * RAZORPAY PAYMENT
    * ------------------------------------------------
    */
-
-  /**
-   * Verify Razorpay payment
-   * on the Django backend.
-   *
-   * IMPORTANT:
-   * Payment verification happens
-   * server-side. Never put the
-   * Razorpay secret key here.
-   */
-  async verifyPayment(
-    verificationPayload
-  ) {
+  async verifyPayment(verificationPayload) {
     if (!verificationPayload) {
-      throw new Error(
-        'Payment verification information is missing.'
-      );
+      throw new Error('Payment verification information is missing.');
     }
-
-    return request(
-      '/api/payments/verify/',
-      {
-        method: 'POST',
-        body: JSON.stringify(
-          verificationPayload
-        ),
-      }
-    );
+    return request('/api/payments/verify/', {
+      method: 'POST',
+      body: JSON.stringify(verificationPayload),
+    });
   },
 };
