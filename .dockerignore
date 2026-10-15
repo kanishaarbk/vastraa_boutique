@@ -22,8 +22,8 @@ venv/
 venv/
 .venv/
 
-# Ignore Django migrations (except __init__.py)
-**/migrations/*.py
+# Ensure Django migrations are included in the Docker build
+!**/migrations/*.py
 !**/migrations/__init__.py
 
 # Ignore media files (user uploads)

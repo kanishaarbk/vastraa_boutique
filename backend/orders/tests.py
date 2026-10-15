@@ -5,8 +5,11 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
+from django.core.management import call_command
+from django.db import connection
+from django.db.migrations.loader import MigrationLoader
 from products.models import Category, Product
-from orders.models import Order, OrderItem
+from orders.models import Order, OrderItem, CustomerProfile, PhonePasswordResetOTP
 
 User = get_user_model()
 
@@ -291,3 +294,70 @@ class ECommerceAPITests(TestCase):
         order.refresh_from_db()
         self.assertEqual(order.order_status, 'SHIPPED')
         self.assertEqual(order.payment_status, 'PAID')
+
+    def test_guest_checkout_order_creation(self):
+        """Verify guest checkout creates order without a registered user (user=None)."""
+        guest_payload = {
+            'customer_name': 'Guest Buyer',
+            'email': 'guest@example.com',
+            'phone': '9876543210',
+            'address': 'Guest Address',
+            'city': 'Guest City',
+            'state': 'Guest State',
+            'pincode': '600001',
+            'payment_method': 'COD',
+            'items': [{'product_id': self.product1.id, 'quantity': 1}]
+        }
+        res = self.client.post('/api/orders/', data=json.dumps(guest_payload), content_type='application/json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        order = Order.objects.get(order_number=res.data['order_number'])
+        self.assertIsNone(order.user)
+        self.assertEqual(order.customer_name, 'Guest Buyer')
+
+    def test_customer_profile_creation_and_attributes(self):
+        """Verify CustomerProfile model structure and relations."""
+        user = User.objects.create_user('custprofile@example.com', 'custprofile@example.com', 'Pass123456!')
+        profile = CustomerProfile.objects.create(user=user, phone='9123456780')
+        self.assertEqual(str(profile), f"Profile of {user.email}")
+        self.assertEqual(user.profile.phone, '9123456780')
+
+    def test_phone_password_reset_otp_creation(self):
+        """Verify PhonePasswordResetOTP model fields and string representation."""
+        user = User.objects.create_user('otpuser@example.com', 'otpuser@example.com', 'Pass123456!')
+        otp = PhonePasswordResetOTP.objects.create(
+            user=user,
+            phone='9876543210',
+            otp_code='123456',
+            reset_token='testtoken123'
+        )
+        self.assertIn('9876543210', str(otp))
+        self.assertFalse(otp.is_used)
+
+    def test_migration_files_present_and_recognized(self):
+        """Verify that all required migrations are recognized on disk by Django's MigrationLoader."""
+        loader = MigrationLoader(connection)
+        # Orders app migrations
+        self.assertIn(('orders', '0001_initial'), loader.disk_migrations)
+        self.assertIn(('orders', '0002_order_user_alter_order_order_status_customerprofile'), loader.disk_migrations)
+        self.assertIn(('orders', '0003_phonepasswordresetotp'), loader.disk_migrations)
+        # Products app migrations
+        self.assertIn(('products', '0001_initial'), loader.disk_migrations)
+
+    def test_no_pending_unapplied_model_changes(self):
+        """Ensure makemigrations detects no missing migrations for any app."""
+        try:
+            call_command('makemigrations', dry_run=True, check=True)
+        except SystemExit as exc:
+            self.fail(f"makemigrations --check failed with code {exc}: pending model changes detected without migrations!")
+
+    def test_dockerignore_does_not_exclude_migrations(self):
+        """Ensure .dockerignore does not exclude Django migration files from Docker build."""
+        from pathlib import Path
+        dockerignore_path = Path(__file__).resolve().parent.parent.parent / '.dockerignore'
+        self.assertTrue(dockerignore_path.exists(), ".dockerignore must exist at repository root")
+        lines = [line.strip() for line in dockerignore_path.read_text().splitlines() if line.strip() and not line.startswith('#')]
+        self.assertNotIn('**/migrations/*.py', lines, "**/migrations/*.py must not be an ignore rule in .dockerignore")
+        self.assertNotIn('backend/**/migrations/*.py', lines)
+        self.assertIn('!**/migrations/*.py', lines, "!**/migrations/*.py must ensure migrations are included")
+
+
